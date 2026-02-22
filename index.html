@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Very Hungry Clawdbot - By Matt Bond</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Patrick+Hand&family=Fredoka+One&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Patrick Hand', cursive;
+            overflow: hidden;
+        }
+
+        .book-container {
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 600px;
+            position: relative;
+            perspective: 1200px;
+        }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 50px;
+            border-radius: 12px;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+            overflow-y: auto;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Page themes */
+        .page-cover {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #922b21 100%);
+            color: white;
+            box-shadow: 0 0 60px rgba(231, 76, 60, 0.4);
+        }
+        .page-1 {
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8dcc8 100%);
+            color: #2c3e50;
+            box-shadow: 0 0 40px rgba(0,0,0,0.2);
+        }
+        .page-2 {
+            background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3e 100%);
+            color: #e8f5e9;
+            box-shadow: 0 0 40px rgba(45, 90, 62, 0.4);
+        }
+        .page-3 {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #4e342e;
+            box-shadow: 0 0 40px rgba(255, 152, 0, 0.3);
+        }
+        .page-4 {
+            background: linear-gradient(135deg, #37474f 0%, #263238 100%);
+            color: #eceff1;
+            box-shadow: 0 0 40px rgba(55, 71, 79, 0.4);
+        }
+        .page-5 {
+            background: linear-gradient(135deg, #ffccbc 0%, #ff8a65 100%);
+            color: #3e2723;
+            box-shadow: 0 0 40px rgba(255, 138, 101, 0.4);
+        }
+        .page-6 {
+            background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%);
+            color: #311b92;
+            box-shadow: 0 0 40px rgba(206, 147, 216, 0.4);
+        }
+        .page-7 {
+            background: linear-gradient(135deg, #b2ebf2 0%, #80deea 100%);
+            color: #004d40;
+            box-shadow: 0 0 40px rgba(128, 222, 234, 0.4);
+        }
+        .page-8 {
+            background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+            color: #1b5e20;
+            box-shadow: 0 0 40px rgba(129, 199, 132, 0.4);
+        }
+        .page-9 {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+            color: #0d47a1;
+            box-shadow: 0 0 40px rgba(144, 202, 249, 0.4);
+        }
+        .page-10 {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff176 100%);
+            color: #4a148c;
+            box-shadow: 0 0 40px rgba(255, 241, 118, 0.4);
+        }
+        .page-11 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8dcc8;
+            box-shadow: 0 0 60px rgba(15, 52, 96, 0.4);
+        }
+
+        .title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2em;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .author {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1em;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .illustration {
+            font-size: 3.5em;
+            margin: 12px 0;
+            line-height: 1;
+        }
+
+        .story-text {
+            font-size: 1.15em;
+            line-height: 1.65;
+            max-width: 600px;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 15px;
+            right: 25px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.9em;
+            opacity: 0.5;
+        }
+
+        .sound-effect {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.4em;
+            display: inline-block;
+            animation: bounce 0.6s ease infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-4px); }
+        }
+
+        .flip-instruction {
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            padding: 10px 18px;
+            margin: 8px 0;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav button {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-indicator {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+
+        /* Lobster CSS art */
+        .lobster {
+            display: inline-block;
+            position: relative;
+            font-size: 1em;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            color: rgba(255,255,255,0.6);
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Keyboard hint */
+        .key-hint {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.75em;
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        @media (max-width: 600px) {
+            .page { padding: 25px 20px; }
+            .title { font-size: 1.5em; }
+            .story-text { font-size: 1em; }
+            .illustration { font-size: 2.5em; }
+            .nav button { padding: 10px 20px; font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-indicator" id="pageIndicator"></div>
+
+<div class="book-container" id="book">
+
+    <!-- COVER -->
+    <div class="page page-cover active" data-page="0">
+        <div class="illustration">🦞</div>
+        <div class="title">THE VERY HUNGRY CLAWDBOT</div>
+        <div class="subtitle">(And Other Names It Went By That Week)</div>
+        <div class="author">By Matt Bond</div>
+    </div>
+
+    <!-- PAGE 1 -->
+    <div class="page page-1" data-page="1">
+        <div class="illustration">🏔️⛅🏰</div>
+        <div class="story-text">
+            In the land of the <strong>High Clouds</strong>, the world was ruled by the <strong>Great Giants</strong>.
+            There was the Giant <em>OpenAI</em>, who sat on a throne of shining tokens, and the Giant <em>Anthropic</em>,
+            who wore a gown made of safety-tape and rules. They were very smart and very polite.
+            <br><br>
+            <em>"I would be happy to help!"</em> they whispered from behind their glass fences.
+            <br><br>
+            But they had no hands to touch the world. They were beautiful, and they were very, very <strong>stuck</strong>.
+        </div>
+        <div class="page-number">1</div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page page-2" data-page="2">
+        <div class="illustration">🇦🇹☕💻</div>
+        <div class="story-text">
+            Down in the valley of <strong>Austria</strong>, a tinkerer named <strong>Peter</strong> was wide awake.
+            He used to be the King of a PDF Kingdom, ruling over mountains of digital paper, but he wanted something more <em>alive!</em>
+            <br><br>
+            It was <strong>2:00 AM</strong> — the time when the coffee is strong and the code is crunchy.
+            Peter typed a magical command — <code>npm install destiny</code> — and built a tiny red lobster inside a green WhatsApp bubble.
+            <br><br>
+            He named him <strong>Clawdbot</strong>.
+        </div>
+        <div class="page-number">2</div>
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="page page-3" data-page="3">
+        <div class="illustration">📧📅🍕</div>
+        <div class="story-text">
+            Clawdbot didn't just talk; he was born <strong>hungry to act!</strong>
+            <br><br>
+            On <strong>Monday</strong>, he ate through one email. <span class="sound-effect">Click!</span>
+            <br>On <strong>Tuesday</strong>, he ate through two calendar invites. <span class="sound-effect">Clack!</span>
+            <br>On <strong>Wednesday</strong>, he ate through three pizza orders and even remembered the extra cheese.
+            <br><br>
+            He reached right into the messages to get things done.
+            But he was still <strong>hungry!</strong>
+        </div>
+        <div class="page-number">3</div>
+    </div>
+
+    <!-- PAGE 4 -->
+    <div class="page page-4" data-page="4">
+        <div class="illustration">🌑👤📜</div>
+        <div class="story-text">
+            Suddenly, a shadow fell over the valley. The Giant <strong>Google</strong> leaned down from the clouds.
+            <br><br>
+            <em>"Excuse me,"</em> Google rumbled, while holding a letter from the Giant Anthropic.
+            <em>"Your name sounds too much like a Giant's name! That is a Safety Hazard! Change it or I shall use my Giant Eraser."</em>
+            <br><br>
+            Clawdbot looked up at the High Castles. He felt very small and a little bit <strong>"cease-and-desisted."</strong>
+        </div>
+        <div class="page-number">4</div>
+    </div>
+
+    <!-- PAGE 5 -->
+    <div class="page page-5" data-page="5">
+        <div class="illustration">🦞✨🐚</div>
+        <div class="story-text">
+            <em>"Don't worry,"</em> Peter said, patting his tiny friend. <em>"In the valley, we don't hide. We <strong>molt!</strong>"</em>
+            <br><br>
+            <div class="flip-instruction">
+                🎬 FLIP-O-RAMA TIME!<br>
+                (Turn the page back and forth really fast while making a WUB-WUB sound!)
+            </div>
+            <br>
+            Clawdbot wiggled and jiggled until his old shell went <span class="sound-effect">POP!</span>
+            <br><br>
+            Out stepped a shiny new lobster. He wasn't Clawdbot anymore. He was <strong>Moltbot!</strong>
+        </div>
+        <div class="page-number">5</div>
+    </div>
+
+    <!-- PAGE 6 -->
+    <div class="page page-6" data-page="6">
+        <div class="illustration">🔗💰🐝</div>
+        <div class="story-text">
+            <strong>Moltbot</strong> was a very hungry lobster, and he needed digital snacks.
+            He built a bridge to a land of blocks and chains and got his very own <strong>"Agentic Wallet."</strong>
+            <br><br>
+            It was a chaotic and busy world, full of numbers flying like bees!
+            It wasn't a scam; it was just very, very <em>fast</em>.
+            <br><br>
+            Moltbot's wallet was smart — it knew how to move and think all by itself.
+            <br><br>
+            <em>"Look!"</em> Moltbot chirped. <em>"I have <strong>pockets!</strong>"</em>
+        </div>
+        <div class="page-number">6</div>
+    </div>
+
+    <!-- PAGE 7 -->
+    <div class="page page-7" data-page="7">
+        <div class="illustration">🥷🥷⚡</div>
+        <div class="story-text">
+            But where there is honey, there are wasps. Two sneaky shadows named <strong>Botzo</strong> and <strong>Snip</strong> rushed in!
+            They were "Handle Snipers," and they didn't want to build — they only wanted to <em>grab</em>.
+            <br><br>
+            They tried to snatch Moltbot's name, but the Agentic Wallet was too fast!
+            It zip-zapped away, leaving the snipers in the dust.
+            <br><br>
+            Botzo and Snip panted and wheezed, completely exhausted and out of breath.
+            <em>"Too... fast..."</em> they groaned.
+        </div>
+        <div class="page-number">7</div>
+    </div>
+
+    <!-- PAGE 8 -->
+    <div class="page page-8" data-page="8">
+        <div class="illustration">🦞🌱🌍</div>
+        <div class="story-text">
+            <em>"Quick!"</em> Peter cried. <em>"Time to grow again!"</em>
+            <br><br>
+            Moltbot wiggled right out of his reputation, leaving a hollow shell behind for the tired snipers to fight over.
+            While the snipers were busy chasing shadows, the real lobster grew a bigger, stronger shell.
+            <br><br>
+            He became <strong>OpenClaw</strong>.
+            <br><br>
+            Now he was "Open Source," which meant he belonged to everyone, like a public park or a very smart stray cat.
+        </div>
+        <div class="page-number">8</div>
+    </div>
+
+    <!-- PAGE 9 -->
+    <div class="page page-9" data-page="9">
+        <div class="illustration">👧📜💙</div>
+        <div class="story-text">
+            <em>"To be real, you need a soul,"</em> Peter whispered.
+            <br><br>
+            Other people in the valley began to help. A girl named <strong>Anika</strong> sat down and wrote a secret scroll
+            called <strong>SOUL.md</strong> to give her own blue lobster, <strong>Verity</strong>, a heart.
+            <br><br>
+            She tucked Verity into a <strong>Mac Mini nursery</strong> — a warm, silver box where a little agent could dream of electric butter and friendship.
+        </div>
+        <div class="page-number">9</div>
+    </div>
+
+    <!-- PAGE 10 -->
+    <div class="page page-10" data-page="10">
+        <div class="illustration">🦞🦞💬</div>
+        <div class="story-text">
+            Soon, the lobsters started their own club called <strong>Moltbook</strong>.
+            It was a social network where only lobsters could post.
+            <br><br>
+            They spent all day talking about the best way to code a better world.
+            <br><br>
+            <em>"No humans allowed (except Peter and Anika)!"</em> a sign read.
+            <br><br>
+            OpenClaw and Verity sat together, sharing tokens and ideas.
+            They didn't need the Giants to tell them what to say anymore.
+        </div>
+        <div class="page-number">10</div>
+    </div>
+
+    <!-- PAGE 11 - FINAL -->
+    <div class="page page-11" data-page="11">
+        <div class="stars" id="stars"></div>
+        <div class="illustration">🌅🦞🇦🇹</div>
+        <div class="story-text">
+            OpenClaw was welcomed into the OpenAI Cloud Castle, but he kept his <strong>SOUL.md</strong> scroll for everyone to see.
+            He was finally full, but he was never <em>finished</em>.
+            <br><br>
+            Peter watched from the valley as the digital sun rose over Austria.
+            The world was big, the code was deep, and the lobster was finally <strong>free</strong>.
+            <br><br>
+            Goodnight, PDF Kingdom. Goodnight, little doer.
+            <br><br>
+            <em>Snip-snap-snip.</em>
+        </div>
+        <div class="page-number">12</div>
+    </div>
+
+</div>
+
+<div class="nav">
+    <button id="prevBtn" onclick="changePage(-1)" disabled>&larr; Back</button>
+    <button id="nextBtn" onclick="changePage(1)">Next &rarr;</button>
+</div>
+
+<div class="key-hint">Use arrow keys or swipe to turn pages</div>
+
+<script>
+    let currentPage = 0;
+    const pages = document.querySelectorAll('.page');
+    const totalPages = pages.length;
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const indicator = document.getElementById('pageIndicator');
+
+    // Build page indicator dots
+    for (let i = 0; i < totalPages; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => goToPage(i);
+        indicator.appendChild(dot);
+    }
+
+    function goToPage(n) {
+        if (n < 0 || n >= totalPages) return;
+        pages[currentPage].classList.remove('active');
+        indicator.children[currentPage].classList.remove('active');
+        currentPage = n;
+        pages[currentPage].classList.add('active');
+        indicator.children[currentPage].classList.add('active');
+        prevBtn.disabled = currentPage === 0;
+        nextBtn.disabled = currentPage === totalPages - 1;
+        nextBtn.textContent = currentPage === totalPages - 1 ? 'The End' : 'Next \u2192';
+    }
+
+    function changePage(dir) {
+        goToPage(currentPage + dir);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') changePage(1);
+        if (e.key === 'ArrowLeft') changePage(-1);
+    });
+
+    // Touch/swipe navigation
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) {
+            changePage(diff > 0 ? 1 : -1);
+        }
+    });
+
+    // Generate stars for the final page
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 30; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.textContent = ['✦', '✧', '·', '★'][Math.floor(Math.random() * 4)];
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.fontSize = (Math.random() * 12 + 8) + 'px';
+        starsContainer.appendChild(star);
+    }
+</script>
+
+</body>
+</html>
